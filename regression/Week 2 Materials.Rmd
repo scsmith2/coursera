@@ -5,18 +5,65 @@ date: "Wednesday, December 10, 2014"
 output: html_document
 ---
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+Week 2 Lecture Materials
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+###Statistical Regression Model Examples
+Diamond Example
+```{r, echo=TRUE}
+library(UsingR)
+data(diamond)
+plot(diamond$carat,diamond$price,
+     xlab="Mass (carats)",
+     ylab = "Price (SIN $)",
+     bg = "lightblue",
+     col = "black", cex = 1.1, pch = 21, frame = FALSE)
+abline(lm(price ~ carat, data = diamond),lwd = 2)
+```
 
+Fitting the model
+```{r, echo=TRUE}
+library(UsingR); data(diamond)
+fit <- lm(price ~ carat, data = diamond)
+coef(fit)
+```
+
+Getting more interpretable intercept
+```{r, echo = TRUE}
+library(UsingR); data(diamond)
+fit2 <- lm(price ~ I(carat - mean(carat)), data = diamond)
+coef(fit2)
+```
+
+Changing the scale
+```{r, echo=TRUE}
+library(UsingR); data(diamond)
+fit3 <- lm(price ~ I(carat * 10), data = diamond)
+coef(fit3)
+```
+
+Predicting price of the diamond
+```{r,echo=TRUE}
+library(UsingR); data(diamond)
+fit <- lm(price ~ carat, data = diamond)
+newx <- c(0.16, 0.27, 0.34)
+coef(fit)[1] + coef(fit)[2]*newx
+predict(fit, newdata = data.frame(carat = newx))
+```
+
+Residuals
 ```{r}
-summary(cars)
+library(UsingR); data(diamond)
+y <- diamond$price; x<- diamond$carat; n <- length(y)
+fit <- lm(y~x)
+e <- resid(fit)
+max(abs(e - (y - yhat)))
+max(abs(e - (y - coef(fit)[1] - coef(fit)[2] * x)))
+plot(x,e,
+     xlab = "Mass (Carats)",
+     ylab = "Residuals (SIN $)",
+     cex=1)
+abline(0,0)
 ```
 
-You can also embed plots, for example:
 
-```{r, echo=FALSE}
-plot(cars)
-```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
