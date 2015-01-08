@@ -4,7 +4,7 @@ library(caret); library(ggplot2)
 #download.file("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv","pml-testing.csv")
 
 #Load test data into 'testdata'
-td <- read.csv("pml-training.csv")
+td <- read.csv("pml-training.csv",as.is=TRUE)
 
 #Clean up data
 names(td)[names(td)=="kurtosis_picth_belt"]<-"kurtosis_pitch_belt"
@@ -13,18 +13,33 @@ names(td)[names(td)=="kurtosis_picth_belt"]<-"kurtosis_pitch_belt"
 l <- length(td$classe)
 td <- td[,colSums(!is.na(td))>(.9*l)]
 
-outcome <- data.frame(td$classe)
-predictors <- data.frame(td$roll_belt,
-                         td$pitch_belt,
-                         td$yaw_belt,
-                         td$gyros_belt_x,
-                         td$gyros_belt_y,
-                         td$roll_arm,
-                         td$pitch_arm,
-                         td$yaw_arm)
+#Remove columns that are not features
+drops <- c("X",
+           "user_name",
+           "raw_timestamp_part_1",
+           "raw_timestamp_part_2",
+           "cvtd_timestamp",
+           "new_window",
+           "num_window")
+td <- td[,!(names(td) %in% drops)]
 
-#qplot(td$classe,td$roll_belt,colour=td$user_name)
-#qplot(td$classe,td$roll_belt,colour=td$pitch_belt)
-#qplot(td$classe,td$roll_arm-td$roll_belt)
+#Convert character features to numeric
+#w <- which(sapply(td,class) == 'character')
+#td[w] <- lapply(td[w], function(x) as.numeric(x))
 
-fit <- train(
+#Transform NAs in converted columns to 0
+#td[is.na(td)] <- 0
+
+
+ctrl <- trainControl(method = "repeatedcv",
+                     repeats = 3,
+                     classProbs = TRUE)
+adaFit <- train(classe ~ .,
+                data = td,
+                method = "ada",
+                trControl = ctrl,
+                metric = "ROC")
+
+# Generate a set of 
+plsClasses <- predict(plsFit, newdata = testing)
+plsProbs <- predict(plsFit, newdata = testing, type = "prob")
