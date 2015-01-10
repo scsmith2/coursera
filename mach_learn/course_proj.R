@@ -23,23 +23,51 @@ drops <- c("X",
            "num_window")
 td <- td[,!(names(td) %in% drops)]
 
+#featurePlot(x = td[,79:86],
+            y = td$classe,
+            plot = "pairs")
+
+#qplot(td$roll_forearm,td$yaw_forearm,colour=td$classe)
+
 #Convert character features to numeric
 #w <- which(sapply(td,class) == 'character')
 #td[w] <- lapply(td[w], function(x) as.numeric(x))
 
-#Transform NAs in converted columns to 0
-#td[is.na(td)] <- 0
+dat <- data.frame(td$classe,
+                  td$pitch_belt,
+                  td$yaw_belt,
+                  td$total_accel_belt,
+                  td$total_accel_arm,
+                  td$total_accel_dumbbell,
+                  td$roll_forearm,
+                  td$yaw_forearm)
 
-
-ctrl <- trainControl(method = "repeatedcv",
-                     repeats = 3,
+ctrl <- trainControl(method = "cv",
+#                     number = 5,
+#                     repeats = 10,
                      classProbs = TRUE)
-adaFit <- train(classe ~ .,
-                data = td,
-                method = "ada",
+
+gbmFit <- train(td.classe ~ .,
+                data = dat,
+                method = "gbm",
                 trControl = ctrl,
                 metric = "ROC")
 
-# Generate a set of 
-plsClasses <- predict(plsFit, newdata = testing)
-plsProbs <- predict(plsFit, newdata = testing, type = "prob")
+ctrl <- trainControl(method = "repeatedcv",
+                     number = 5,
+                     repeats = 10,
+                     classProbs = TRUE)
+
+ldaFit <- train(td$classe ~ .,
+                data = td,
+                method = "lda",
+                trControl = ctrl,
+                metric = "ROC")
+
+
+ldaClasses <- predict(ldaFit,newdata=dat)
+confusionMatrix(ldaClasses,dat$td.classe)
+
+nbFit <- train(td.classe ~ .,
+               data = dat,
+               method="nb")
