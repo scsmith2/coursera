@@ -4,70 +4,50 @@ library(caret); library(ggplot2)
 #download.file("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv","pml-testing.csv")
 
 #Load test data into 'testdata'
-td <- read.csv("pml-training.csv",as.is=TRUE)
-
+training <- read.csv("pml-training.csv",as.is=TRUE)
+testing <- read.csv("pml-testing.csv",as.is=TRUE)
 #Clean up data
-names(td)[names(td)=="kurtosis_picth_belt"]<-"kurtosis_pitch_belt"
+names(training)[names(training)=="kurtosis_picth_belt"]<-"kurtosis_pitch_belt"
+names(testing)[names(testing)=="kurtosis_picth_belt"]<-"kurtosis_pitch_belt"
 
-#Remove columns that are >10% NA
-l <- length(td$classe)
-td <- td[,colSums(!is.na(td))>(.9*l)]
+trn <- data.frame(training$classe,
+                  training$pitch_belt,
+                  training$yaw_belt,
+                  training$total_accel_belt,
+                  training$total_accel_arm,
+                  training$total_accel_dumbbell,
+                  training$roll_forearm,
+                  training$yaw_forearm)
+colnames(trn)<-c("classe","pitch_belt","yaw_belt","total_accel_belt",
+                "total_accel_arm","total_accel_dumbbell","roll_forearm","yaw_forearm")
 
-#Remove columns that are not features
-drops <- c("X",
-           "user_name",
-           "raw_timestamp_part_1",
-           "raw_timestamp_part_2",
-           "cvtd_timestamp",
-           "new_window",
-           "num_window")
-td <- td[,!(names(td) %in% drops)]
-
-#featurePlot(x = td[,79:86],
-            y = td$classe,
-            plot = "pairs")
-
-#qplot(td$roll_forearm,td$yaw_forearm,colour=td$classe)
-
-#Convert character features to numeric
-#w <- which(sapply(td,class) == 'character')
-#td[w] <- lapply(td[w], function(x) as.numeric(x))
-
-dat <- data.frame(td$classe,
-                  td$pitch_belt,
-                  td$yaw_belt,
-                  td$total_accel_belt,
-                  td$total_accel_arm,
-                  td$total_accel_dumbbell,
-                  td$roll_forearm,
-                  td$yaw_forearm)
-
-ctrl <- trainControl(method = "cv",
-#                     number = 5,
-#                     repeats = 10,
-                     classProbs = TRUE)
-
-gbmFit <- train(td.classe ~ .,
-                data = dat,
+tst <- data.frame(#testing$classe,
+                  testing$pitch_belt,
+                  testing$yaw_belt,
+                  testing$total_accel_belt,
+                  testing$total_accel_arm,
+                  testing$total_accel_dumbbell,
+                  testing$roll_forearm,
+                  testing$yaw_forearm)
+colnames(tst)<-c("pitch_belt","yaw_belt","total_accel_belt",
+                "total_accel_arm","total_accel_dumbbell","roll_forearm","yaw_forearm")
+gbmCtrl <- trainControl(method = "cv",
+                        number = 10,
+                        classProbs = TRUE)
+set.seed(137)
+gbmFit <- train(classe ~ .,
+                data = trn,
                 method = "gbm",
-                trControl = ctrl,
+                trControl = gbmCtrl,
                 metric = "ROC")
 
-ctrl <- trainControl(method = "repeatedcv",
-                     number = 5,
-                     repeats = 10,
-                     classProbs = TRUE)
+ggplot(gbmFit)
 
-ldaFit <- train(td$classe ~ .,
-                data = td,
-                method = "lda",
-                trControl = ctrl,
-                metric = "ROC")
+gbmTrnClasses <- predict(gbmFit,newdata=trn)
+gbmTrnProbs <- predict(gbmFit,newdata=trn,type="prob")
+confusionMatrix(gbmTrnClasses,trn$classe)
 
-
-ldaClasses <- predict(ldaFit,newdata=dat)
-confusionMatrix(ldaClasses,dat$td.classe)
-
-nbFit <- train(td.classe ~ .,
-               data = dat,
-               method="nb")
+gbmTstClasses <- predict(gbmFit,newdata=tst)
+gbmTstProbs <- predict(gbmFit,newdata=tst,type="prob")
+print(gbmTstClasses)
+print(gbmTstProbs)
