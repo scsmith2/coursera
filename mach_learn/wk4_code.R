@@ -158,15 +158,47 @@ print(c("rfAcc",rfAcc,
         "ldaAcc",ldaAcc,
         "combAcc",combAcc))
 
+# Quiz 4 - Question 3
+library(AppliedPredictiveModeling); library(caret)
+data(concrete)
+set.seed(3523)
+inTrain = createDataPartition(concrete$CompressiveStrength,
+                              p = 3/4)[[1]]
+training = concrete[inTrain,]
+testing = concrete[-inTrain,]
+set.seed(233)
+lassoFit <- train(CompressiveStrength ~ .,
+                  method = "lasso",
+                  data = training)
+plot.enet(lassoFit$finalModel,xvar="penalty",use.color=TRUE)
 
+# Quiz 4 - Question 4
+library(lubridate)  # For year() function below
+library(forecast)
+url <- "https://d396qusza40orc.cloudfront.net/predmachlearn/gaData.csv"
+download.file(url,"gaData.csv")
+dat = read.csv("gaData.csv")
+training = dat[year(dat$date) < 2012,]
+testing = dat[(year(dat$date)) > 2011,]
+tstrain = ts(training$visitsTumblr)
 
+fit <- bats(tstrain)
+# check how long the test set is, so you can predict beyond trainign
+h <- dim(testing)[1]
 
+...
 
-
-
-
-
-
+# Quiz 4 - Question 5
+set.seed(3523)
+library(AppliedPredictiveModeling); library(e1071)
+data(concrete)
+inTrain = createDataPartition(concrete$CompressiveStrength, p = 3/4)[[1]]
+training = concrete[ inTrain,]
+testing = concrete[-inTrain,]
+set.seed(325)
+svmFit <- svm(CompressiveStrength ~ ., data = training)
+svmPred <- predict(svmFit,testing)
+svmRMSE <- sqrt(sum((svmPred-testing$CompressiveStrength)^2)/length(svmPred))
 
 
 
