@@ -1,0 +1,99 @@
+---
+title: "Machine Learning Course Project"
+subtitle: Coursera - Practical Machine Learning
+author: "Scott A. Smith"
+date: "Sunday, January 18, 2015"
+output: html_document
+---
+
+
+
+### Introduction
+Researchers in Brazil applied sensors to practitioners of a dumbbell curl.  The practitioners were instructed to perform the exercise correctly and in four specific improper methods.  Data was collected for the exercises in five classifications.
+
+### Objective
+Use collected data to classify observations into five classes.
+
+### Implementation
+
+##### Load R Packages & Data
+```{r, message=FALSE, warning=FALSE}
+library(caret); library(ggplot2); library(RCurl)
+data1 <- getURL("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv",
+                ssl.verifypeer=0L, followlocation=1L)
+data2 <- getURL("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv",
+                ssl.verifypeer=0L, followlocation=1L)
+writeLines(data1,"pml-training.csv")
+writeLines(data2,"pml-testing.csv")
+training <- read.csv("pml-training.csv",as.is=TRUE)
+testing <- read.csv("pml-testing.csv",as.is=TRUE)
+```
+
+##### Clean Up Data
+```{r, message=FALSE, warning=FALSE}
+# Correct a spelling error in the imported data column names
+names(training)[names(training)=="kurtosis_picth_belt"]<-"kurtosis_pitch_belt"
+names(testing)[names(testing)=="kurtosis_picth_belt"]<-"kurtosis_pitch_belt"
+
+# Convert the training data set classification to a factor
+training$classe <- as.factor(training$classe)
+```
+
+##### Feature Selection
+Feature selection was performed manually by visual investigation of the data.  The approach was intuitive and used the featurePlot function to plot 5-8 pairs at a time traversing through the complete variable space.
+
+The plot below shows that cross-plotting belt pitch against belt yaw, colored by classe to visually show class groupings.
+
+This process resulted in use of the following seven factors.
+1. pitch_belt
+2. yaw_belt
+3. total_accel_belt
+4. total_accel_arm
+5. total_accel_dumbbell
+6. roll_forearm
+7. yaw_forearm
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+qplot(training$pitch_belt,training$yaw_belt,color=training$classe)
+```
+
+##### Configure Model Training Parameters
+K-Fold Cross-Validation was applied using the trainControl() function with 10 folds.
+```{r, message=FALSE, warning=FALSE}
+gbmCtrl <- trainControl(method = "cv",
+                        number = 10,
+                        classProbs = TRUE)
+```
+
+##### Model Training
+The caret Generalized Boosting Model (gbm) was used to develop the classification model.  The number of trees and shrinkage in the gbm model impact out-of-sample error, where specifically shrinkage (or learning rate) is positively related to out-of-sample error.  Smaller values of shrinkage result in decreased out-of-sample error, but significantly increased computational complexity.
+```{r, message=FALSE, warning=FALSE}
+set.seed(137)
+gbmFit <- train(classe ~ pitch_belt+yaw_belt+total_accel_belt+total_accel_arm+total_accel_dumbbell+roll_forearm+yaw_forearm,
+                data = training,
+                method = "gbm",
+                trControl = gbmCtrl,
+                metric = "ROC",
+                verbose = FALSE)
+```
+
+##### Model Analysis
+The output below indicates a model accuracy of 89% for the training set.  Positive and negative predictive values for Class A of 94% and 97% respectively are very good in that this is the "correct" approach to the excercise.  Discrimination of the correct class is important in deciding whether to provide corrective guidance to the practitioner.
+```{r, message=FALSE, warning=FALSE}
+gbmTrnClasses <- predict(gbmFit,newdata=training)
+gbmTrnProbs <- predict(gbmFit,newdata=training,type="prob")
+confusionMatrix(gbmTrnClasses,training$classe)
+```
+
+##### Conclusion & Discussion
+The developed model showed an overall accuracy of 89% and did very well at discriminating between the five exercise classes.
+
+##### Follow-up
+The model was based on seven factors and the relative importances are plotted below.  The top two and fourth items all are outputs from the belt sensor.  The application of this technology may be simplified significantly by using one sensor on the belt.  Additional modeling work is warranted to investigate achievable accuracy using one belt sensor.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+summary(gbmFit)
+```
+
+### Resources
+[1] Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H. Qualitative Activity Recognition of Weight Lifting Exercises. Proceedings of 4th International Conference in Cooperation with SIGCHI (Augmented Human '13) . Stuttgart, Germany: ACM SIGCHI, 2013.
+http://groupware.les.inf.puc-rio.br/har
