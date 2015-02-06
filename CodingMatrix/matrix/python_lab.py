@@ -25,28 +25,28 @@ divisible_by_3 = (0==(673+909)%3)
 x = -9
 y = 1/2
 expression_val = 1
-
+# expression was >>>2**(y+1/2) if x+10<0 else 2**(y-1/2)
 
 
 ## 5: (Task 5) Squares Set Comprehension
-first_five_squares = { ... for _ in {1,2,3,4,5} }
+first_five_squares = { x**2 for x in {1,2,3,4,5} }
 
 
 
 ## 6: (Task 6) Powers-of-2 Set Comprehension
-first_five_pows_two = { ... for _ in {0,1,2,3,4} }
+first_five_pows_two = { 2**x for x in {0,1,2,3,4} }
 
 
 
 ## 7: (Task 7) Double comprehension evaluating to nine-element set
-X1 = { ..., ..., ... }
-Y1 = { ..., ..., ... }
+X1 = {1,2,3}
+Y1 = {5,7,11}
 
 
 
 ## 8: (Task 8) Double comprehension evaluating to five-element set
-X2 = { ..., ..., ... }
-Y2 = { ..., ..., ... }
+X2 = {2,4,6}
+Y2 = {2,3,6}
 
 
 
@@ -54,7 +54,7 @@ Y2 = { ..., ..., ... }
 S = {1, 2, 3, 4}
 T = {3, 4, 5, 6}
 # Replace { ... } with a one-line set comprehension that evaluates to the intersection of S and T
-S_intersect_T = { ... }
+S_intersect_T = {x for x in S if x in T}
 
 
 
@@ -63,13 +63,13 @@ list_of_numbers = [20, 10, 15, 75]
 # Replace ... with a one-line expression that evaluates to the average of list_of_numbers.
 # Your expression should refer to the variable list_of_numbers, and should work
 # for a list of any length greater than zero.
-list_average = ... 
+list_average = sum(list_of_numbers)/len(list_of_numbers)
 
 
 
 ## 11: (Task 11) Cartesian-product comprehension
 # Replace ... with a double list comprehension over ['A','B','C'] and [1,2,3]
-cartesian_product = ...
+cartesian_product = [[x,y] for x in ['A','B','C'] for y in [1,2,3]]
 
 
 
@@ -77,7 +77,7 @@ cartesian_product = ...
 LofL = [[.25, .75, .1], [-1, 0], [4, 4, 4, 4]]
 # Replace ... with a one-line expression of the form sum([sum(...) ... ]) that
 # includes a comprehension and evaluates to the sum of all numbers in all the lists.
-LofL_sum = ...
+LofL_sum = sum(sum(LofL,[]))
 
 
 
