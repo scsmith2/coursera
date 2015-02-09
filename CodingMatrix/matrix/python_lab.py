@@ -45,8 +45,8 @@ Y1 = {5,7,11}
 
 
 ## 8: (Task 8) Double comprehension evaluating to five-element set
-X2 = {2,4,6}
-Y2 = {2,3,6}
+X2 = {2,4,8}
+Y2 = {3,6,12}
 
 
 
@@ -77,7 +77,7 @@ cartesian_product = [[x,y] for x in ['A','B','C'] for y in [1,2,3]]
 LofL = [[.25, .75, .1], [-1, 0], [4, 4, 4, 4]]
 # Replace ... with a one-line expression of the form sum([sum(...) ... ]) that
 # includes a comprehension and evaluates to the sum of all numbers in all the lists.
-LofL_sum = sum(sum(LofL,[]))
+LofL_sum = sum([sum(x) for x in LofL])
 
 
 
@@ -200,7 +200,7 @@ def cubes(L): return [x**3 for x in L]
 # Output: the list L such that L[i] is the value associated in dct with keylist[i]
 # Example: dict2list({'a':'A', 'b':'B', 'c':'C'},['b','c','a']) should equal ['B','C','A']
 # Complete the procedure definition by replacing [ ... ] with a one-line list comprehension
-def dict2list(dct, keylist): return [ ... ]
+def dict2list(dct, keylist): return [dct[key] for key in keylist]
 
 
 
@@ -209,5 +209,5 @@ def dict2list(dct, keylist): return [ ... ]
 # Output: the dictionary that maps keylist[i] to L[i] for i=0,1,...len(L)-1
 # Example: list2dict(['A','B','C'],['a','b','c']) should equal {'a':'A', 'b':'B', 'c':'C'}
 # Complete the procedure definition by replacing { ... } with a one-line dictionary comprehension
-def list2dict(L, keylist): return { ... }
+def list2dict(L, keylist): return {keylist[k]:L[k] for k in range(0,len(L))}
 
