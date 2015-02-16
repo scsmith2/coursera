@@ -13,8 +13,8 @@ def movie_review(name):
     Input: the name of a movie
     Output: a string (one of the review options), selected at random using randint
     """
-    return [["See it!","A gem!","Trash heap!"][randint(0,2)]]
-
+    return ["See it!","A gem!","Trash heap!"][randint(0,2)]
+    pass
 
 
 ## 2: (Task 2) Make Inverse Index
@@ -32,6 +32,18 @@ def makeInverseIndex(strlist):
     >>> makeInverseIndex(['hello world','hello','hello cat','hellolot of cats']) == {'hello': {0, 1, 2}, 'cat': {2}, 'of': {3}, 'world': {0}, 'cats': {3}, 'hellolot': {3}}
     True
     """
+    enum = list(enumerate(strlist))
+    spl = [enum[i][1].split() for i in range(len(enum))]
+    d = {}
+    for i in range(len(spl)):
+        for j in range(len(spl[i])):
+            if not spl[i][j] in d:
+                d[spl[i][j]]=set()
+                d[spl[i][j]].add(i)
+            else:
+                d[spl[i][j]].add(i)
+    return d
+
     pass
 
 
@@ -49,6 +61,12 @@ def orSearch(inverseIndex, query):
     >>> orSearch(idx, ['Johann', 'Carl'])
     {0, 2, 3, 4, 5}
     """
+    idx = inverseIndex 
+    k = []
+    for i in range(len(query)):
+        k.append([idx[x] for x in idx if x == query[i]][0])  
+    k = set([j for i in k for j in i])
+    return k
     pass
 
 
@@ -66,5 +84,14 @@ def andSearch(inverseIndex, query):
     >>> andSearch(idx, ['Johann', 'Bach'])
     {0, 4}
     """
+    idx = inverseIndex 
+    k = []
+    for i in range(len(query)):
+        k.append([idx[x] for x in idx if x == query[i]][0])  
+    r = set([j for i in k for j in i])
+    for m in range(len(k)):
+        r = r.intersection(k[m])
+    return r
+    pass
     pass
 
