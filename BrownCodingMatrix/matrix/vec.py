@@ -15,6 +15,7 @@ def getitem(v,k):
     >>> v['b']
     0
     """
+    return v.f[k] if k in v.f else 0
     pass
 
 def setitem(v,k,val):
@@ -34,6 +35,7 @@ def setitem(v,k,val):
     >>> v['a']
     0
     """
+    return v.f[k] = val
     pass
 
 def equal(u,v):
