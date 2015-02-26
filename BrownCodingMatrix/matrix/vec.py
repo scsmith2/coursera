@@ -57,7 +57,7 @@ def equal(u,v):
 
     The keys matter:
     >>> Vec({'a','b'},{'a':1}) == Vec({'a','b'},{'b':1})
-    False
+    False    
 
     The values matter:
     >>> Vec({'a','b'},{'a':1}) == Vec({'a','b'},{'a':2})
@@ -65,8 +65,19 @@ def equal(u,v):
 
     """
     assert u.D == v.D
-    a = True if u.f == v.f else False
-    return a
+    #a = u.f; b = v.f
+    for i in u.D:
+        if i in u.f:
+            next
+        else:
+            u.f[i]=0
+    for j in v.D:
+        if j in v.f:
+            next
+        else:
+            v.f[j]=0
+    check = u.f==v.f
+    return check
 
 
 def add(u,v):
@@ -93,7 +104,15 @@ def add(u,v):
     True
     """
     assert u.D == v.D
-    pass
+    outD = u.D
+    outf = {i:(u.f[i]+v.f[i]) for i in u.f if i in v.f}
+    for j in u.f:
+        if j not in v.f:
+            outf[j] = u.f[j]
+    for k in v.f:
+        if k not in u.f:
+            outf[k] = v.f[k]
+    return Vec(outD,outf)
 
 def dot(u,v):
     """
@@ -124,7 +143,8 @@ def dot(u,v):
     12
     """
     assert u.D == v.D
-    pass
+    out = sum([u.f[i]*v.f[i] for i in u.f if i in v.f])
+    return out
 
 def scalar_mul(v, alpha):
     """
@@ -141,7 +161,10 @@ def scalar_mul(v, alpha):
     >>> u == Vec({'x','y','z','w'},{'x':1,'y':2,'z':3,'w':4})
     True
     """
-    pass
+    outD = v.D
+    outf = {i:(alpha*v.f[i]) for i in v.f}
+    return Vec(outD,outf)
+
 
 def neg(v):
     """
@@ -156,7 +179,9 @@ def neg(v):
     True
 
     """
-    pass
+    outD = v.D
+    outf = {i:-v.f[i] for i in v.f}
+    return Vec(outD,outf)
 
 ###############################################################################################################################
 
