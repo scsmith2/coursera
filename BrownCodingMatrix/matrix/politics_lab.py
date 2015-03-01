@@ -197,11 +197,22 @@ def find_average_record(sen_set, voting_dict):
         >>> find_average_record({'a'}, d)
         [0.0, 1.0, 1.0]
     """
-    sum = []
-    
-    return ...
+    lists = [voting_dict[i] for i in sen_set]
+    n = len(lists)
+    sums = []
+    for j in range(len(lists[0])):
+        sums.append(sum([lists[k][j] for k in range(len(lists))]))
+    for h in range(len(sums)):
+        sums[h] = sums[h]/n
+   
+    return sums
 
-average_Democrat_record = ... # give the vector as a list
+def average_Democrat_record():
+    demsens = {x.split()[0] for x in mylist if x.split()[1] == 'D'}
+    sens = create_voting_dict(mylist)
+    return find_average_record(demsens,sens)
+
+average_Democrat_record = average_Democrat_record()
 
 
 
@@ -218,5 +229,12 @@ def bitter_rivals(voting_dict):
         >>> br == ('Fox-Epstein', 'Oyakawa') or br == ('Oyakawa', 'Fox-Epstein')
         True
     """
-    return (..., ...)
-
+    rival_rating = 0
+    for i in voting_dict:
+        for j in voting_dict:
+            pc = policy_compare(i,j,voting_dict)
+            if pc < rival_rating:
+                rival_rating = pc
+                rivals = (i,j)
+                
+    return rivals
